@@ -81,7 +81,7 @@ class WxListState extends State<WxList> {
               color: Colors.white,
               child: InkWell(
                   onTap: () {
-                    _onPressd(context, data[index].id);
+                    _onPressd(context, data[index]);
                   },
                   child: Center(
                       child: Text(
@@ -92,9 +92,9 @@ class WxListState extends State<WxList> {
         });
   }
 
-  _onPressd(BuildContext context, int id) {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (ctx) => WxDetailPage(id.toString())));
+  _onPressd(BuildContext context, WxBean bean) {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (ctx) => WxDetailPage(bean)));
   }
 
   Future<void> _onRefresh() {

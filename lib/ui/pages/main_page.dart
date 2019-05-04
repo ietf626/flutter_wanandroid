@@ -30,7 +30,9 @@ class TabLayout extends StatelessWidget {
         isScrollable: false,
         indicatorSize: TabBarIndicatorSize.label,
         labelPadding: EdgeInsets.all(12),
-        tabs: _pages.map((str) => new Tab(text: Strings.get(str))).toList());
+        tabs: _pages
+            .map((str) => new Tab(text: Strings.getTabValue(str)))
+            .toList());
   }
 }
 
