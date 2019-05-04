@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/res/strings.dart';
+import 'package:flutter_wanandroid/res/strings.dart';
 
 import 'home_page.dart';
 import 'hot_page.dart';

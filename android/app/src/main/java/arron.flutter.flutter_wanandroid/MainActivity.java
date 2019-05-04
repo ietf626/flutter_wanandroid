@@ -1,4 +1,4 @@
-package demo.flutter.arron.flutter_demo;
+package arron.flutter.flutter_wanandroid;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;

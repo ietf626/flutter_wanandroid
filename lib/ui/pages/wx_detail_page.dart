@@ -4,64 +4,71 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_wanandroid/api/api.dart';
-import 'package:flutter_wanandroid/model/wx_bean.dart';
+import 'package:flutter_wanandroid/model/wx_detail_bean.dart';
 import 'package:http/http.dart';
-
-import 'wx_detail_page.dart';
+import 'package:sprintf/sprintf.dart';
 
 final Client client = Client();
 
-Future<List<WxBean>> fetchData() async {
-  final response = await client.get(Api.wx_list);
+Future<List<WxDetailBean>> fetchData(String id) async {
+  var url = sprintf(Api.wx_detail_list, [id, 1]);
+  print("url:" + url);
+  final response = await client.get(url);
   return compute(parseData, response.body);
 }
 
-List<WxBean> parseData(String str) {
-  final parsed = json.decode(str)['data'].cast<Map<String, dynamic>>();
-  return parsed.map<WxBean>((json) => WxBean.fromJson(json)).toList();
+List<WxDetailBean> parseData(String str) {
+  final parsed = json.decode(str)['data'];
+  currPage = parsed['curPage'];
+  final datas = parsed['datas'].cast<Map<String, dynamic>>();
+  return datas
+      .map<WxDetailBean>((json) => WxDetailBean.fromJson(json))
+      .toList();
 }
 
-class WxPage extends StatelessWidget {
-  WxPage({Key key, this.label}) : super(key: key);
-  String label;
+String id;
+int currPage = 1;
+
+class WxDetailPage extends StatelessWidget {
+  WxDetailPage(String id_str) {
+    id = id_str;
+  }
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: fetchData(),
+        future: fetchData(id),
         builder: (context, snapshot) {
-          Widget widget;
           switch (snapshot.connectionState) {
             case ConnectionState.none:
             case ConnectionState.waiting:
-              widget = Center(
+              return Center(
                 child: CircularProgressIndicator(),
               );
               break;
             default:
               if (snapshot.hasError) {
-                widget = Center(child: Text('Error:${snapshot.error}'));
+                return Center(child: Text('Error:${snapshot.error}'));
               } else {
-                widget = WxList(data: snapshot.data);
+                return WxDetailList(data: snapshot.data);
               }
               break;
           }
-          return widget;
         });
   }
 }
 
-class WxList extends StatefulWidget {
-  WxList({this.data});
-  List<WxBean> data;
+class WxDetailList extends StatefulWidget {
+  WxDetailList({this.data});
+  List<WxDetailBean> data;
   @override
   State<StatefulWidget> createState() {
-    return WxListState(data: data);
+    return WxDetailListState(data: data);
   }
 }
 
-class WxListState extends State<WxList> {
-  WxListState({this.data});
-  List<WxBean> data;
+class WxDetailListState extends State<WxDetailList> {
+  WxDetailListState({this.data});
+  List<WxDetailBean> data;
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
@@ -71,34 +78,26 @@ class WxListState extends State<WxList> {
   }
 
   Widget _buildContent() {
-    return GridView.builder(
+    return ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
         itemCount: data.length,
-        gridDelegate:
-            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
         itemBuilder: (context, index) {
           return Card(
               color: Colors.white,
               child: InkWell(
-                  onTap: () {
-                    _onPressd(context, data[index].id);
-                  },
+                  onTap: _onPressd,
                   child: Center(
                       child: Text(
-                    data[index].name,
+                    data[index].link,
                     style: TextStyle(
                         color: Colors.black, fontWeight: FontWeight.bold),
                   ))));
         });
   }
 
-  _onPressd(BuildContext context, int id) {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (ctx) => WxDetailPage(id.toString())));
-  }
-
+  _onPressd() {}
   Future<void> _onRefresh() {
-    return fetchData().then((list) {
+    return fetchData(id).then((list) {
       setState(() {
         data = list;
       });
