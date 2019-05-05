@@ -6,17 +6,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_wanandroid/api/api.dart';
 import 'package:flutter_wanandroid/model/wx_bean.dart';
 import 'package:flutter_wanandroid/model/wx_detail_bean.dart';
+import 'package:flutter_wanandroid/res/strings.dart';
+import 'package:flutter_wanandroid/utils/toast_util.dart';
 import 'package:flutter_wanandroid/utils/utils.dart';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:sprintf/sprintf.dart';
+
 import 'wx_search_page.dart';
-import 'package:flutter_wanandroid/res/strings.dart';
 
 final Client client = Client();
 
-Future<List<WxDetailBean>> fetchData(String id) async {
-  var url = sprintf(Api.wx_detail_list, [id, 1]);
+Future<List<WxDetailBean>> fetchData({int page = 1}) async {
+  var url = sprintf(Api.wx_detail_list, [bean.id, page]);
   print("url:" + url);
   final response = await client.get(url);
   return compute(parseData, response.body);
@@ -41,7 +43,7 @@ class WxDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: fetchData(bean.id.toString()),
+        future: fetchData(),
         builder: (context, snapshot) {
           Widget widget;
           switch (snapshot.connectionState) {
@@ -66,7 +68,8 @@ class WxDetailPage extends StatelessWidget {
                 IconButton(
                     icon: Icon(Icons.search),
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (ctx)=>WxSearchPage()));
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (ctx) => WxSearchPage()));
                     })
               ],
             ),
@@ -88,6 +91,21 @@ class WxDetailList extends StatefulWidget {
 class WxDetailListState extends State<WxDetailList> {
   WxDetailListState({this.data});
   List<WxDetailBean> data;
+
+  ScrollController _controller = ScrollController();
+  int _currPage = 1;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(() {
+      if (_controller.position.pixels == _controller.position.maxScrollExtent) {
+        _getMore();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
@@ -99,9 +117,10 @@ class WxDetailListState extends State<WxDetailList> {
   Widget _buildContent() {
     return ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: data.length+1,
+        itemCount: data.length + 1,
+        controller: _controller,
         itemBuilder: (context, index) {
-          if(index>=data.length){
+          if (index >= data.length) {
             return _getMoreWidget();
           }
           final temp = data[index];
@@ -155,20 +174,45 @@ class WxDetailListState extends State<WxDetailList> {
 
   _onPressd() {}
   Future<void> _onRefresh() {
-    return fetchData(bean.id.toString()).then((list) {
+    return fetchData().then((list) {
       setState(() {
         data = list;
       });
     });
   }
 
-  _getMoreWidget(){
-      return Center(child: Padding(padding:  EdgeInsets.all(10),
-      child: Row(mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        CircularProgressIndicator(),
-        Text(Strings.get(Strings.load_more),style: TextStyle(color: Colors.black,fontSize: 16.0),),
-      ],),));
+  _getMore() {
+    if (_isLoading) return;
+    _isLoading = true;
+    _currPage++;
+    fetchData(page: _currPage).then((list) {
+      setState(() {
+        data.addAll(list);
+        _isLoading = false;
+      });
+    }).catchError(() {
+      ToastUtil.show(Strings.get(Strings.fetch_data_error));
+      _isLoading = false;
+    });
+  }
+
+  _getMoreWidget() {
+    return Center(
+        child: Padding(
+      padding: EdgeInsets.all(10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Container(width: 20, height: 20, child: CircularProgressIndicator()),
+          Container(
+              margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
+              child: Text(
+                Strings.get(Strings.load_more),
+                style: TextStyle(color: Colors.black, fontSize: 16.0),
+              )),
+        ],
+      ),
+    ));
   }
 }
