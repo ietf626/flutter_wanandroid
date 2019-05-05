@@ -10,6 +10,8 @@ import 'package:flutter_wanandroid/utils/utils.dart';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:sprintf/sprintf.dart';
+import 'wx_search_page.dart';
+import 'package:flutter_wanandroid/res/strings.dart';
 
 final Client client = Client();
 
@@ -64,7 +66,7 @@ class WxDetailPage extends StatelessWidget {
                 IconButton(
                     icon: Icon(Icons.search),
                     onPressed: () {
-                      //todo
+                      Navigator.push(context, MaterialPageRoute(builder: (ctx)=>WxSearchPage()));
                     })
               ],
             ),
@@ -97,8 +99,11 @@ class WxDetailListState extends State<WxDetailList> {
   Widget _buildContent() {
     return ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: data.length,
+        itemCount: data.length+1,
         itemBuilder: (context, index) {
+          if(index>=data.length){
+            return _getMoreWidget();
+          }
           final temp = data[index];
           return Card(
               color: Colors.white,
@@ -155,5 +160,15 @@ class WxDetailListState extends State<WxDetailList> {
         data = list;
       });
     });
+  }
+
+  _getMoreWidget(){
+      return Center(child: Padding(padding:  EdgeInsets.all(10),
+      child: Row(mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        CircularProgressIndicator(),
+        Text(Strings.get(Strings.load_more),style: TextStyle(color: Colors.black,fontSize: 16.0),),
+      ],),));
   }
 }
