@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_wanandroid/res/strings.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_wanandroid/res/strings.dart';
+
 import 'wx_detail_page.dart';
 
 class WxSearchPage extends StatefulWidget {
@@ -15,14 +16,14 @@ class WxSearchPage extends StatefulWidget {
 class WxSearchPageState extends State<WxSearchPage> {
   WxSearchPageState({this.id});
   String id;
-  WxDetailModel model;
+  WxModel model;
   TextEditingController controller = TextEditingController();
   bool isEmpty = true;
   String key;
   @override
   void initState() {
     super.initState();
-    model = WxDetailModel(id: id);
+    model = WxModel(id: id);
   }
 
   @override
@@ -42,7 +43,9 @@ class WxSearchPageState extends State<WxSearchPage> {
             controller: controller,
             textInputAction: TextInputAction.search,
             onSubmitted: (value) {
-              setState(() {key = value;});
+              setState(() {
+                key = value;
+              });
             },
             onChanged: (value) {
               setState(() {
@@ -58,7 +61,7 @@ class WxSearchPageState extends State<WxSearchPage> {
   }
 
   Widget buildBody() {
-    if (key==null||key.isEmpty) {
+    if (key == null || key.isEmpty) {
       return null;
     } else {
       return FutureBuilder(
@@ -76,9 +79,10 @@ class WxSearchPageState extends State<WxSearchPage> {
                 if (snapshot.hasError) {
                   widget = Center(child: Text('Error:${snapshot.error}'));
                 } else {
-                  widget = WxDetailList(
+                  widget = WxList(
                     data: snapshot.data,
                     model: model,
+                    keyWords: key,
                   );
                 }
                 break;
