@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
         Constants.ROUTE_PAGE_MAIN: (ctx) => MainPage(),
         Constants.ROUTE_PAGE_WX: (ctx) => WxPage(),
       },
-      title: 'Flutter Demo',
+      title: 'Flutter Wanandroid',
       theme: ThemeData.light().copyWith(
           primaryColor: Colors.black,
           accentColor: Colors.black,

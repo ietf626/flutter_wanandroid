@@ -8,6 +8,7 @@ class Strings {
   static const String wx_search = "wx_search";
   static const String load_more = "load_more";
   static const String fetch_data_error = "fetch_data_error";
+  static const String fetch_data_end = "fetch_data_end";
   static const Map<String, String> values = {
     Strings.tab_home: "主页",
     Strings.tab_project: "项目",
@@ -25,6 +26,7 @@ class Strings {
     Strings.wx_search: "请输入关键词",
     Strings.load_more: "加载更多...",
     Strings.fetch_data_error: "获取数据失败~~o(>_<)o ~~",
+    Strings.fetch_data_end: "没有更多数据了。",
   };
 
   static String get(String id) {

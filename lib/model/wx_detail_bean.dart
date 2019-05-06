@@ -1,3 +1,48 @@
+
+class WxDetailRespBean {
+  String errorMsg;
+  int errorCode;
+  DataBean data;
+
+  WxDetailRespBean({this.errorMsg, this.errorCode, this.data});
+
+  WxDetailRespBean.fromJson(Map<String, dynamic> json) {
+    this.errorMsg = json['errorMsg'];
+    this.errorCode = json['errorCode'];
+    this.data = json['data'] != null ? DataBean.fromJson(json['data']) : null;
+  }
+}
+class DataBean {
+  bool over;
+  int curPage;
+  int offset;
+  int pageCount;
+  int size;
+  int total;
+  List<WxDetailBean> datas;
+
+  DataBean(
+      {this.over,
+        this.curPage,
+        this.offset,
+        this.pageCount,
+        this.size,
+        this.total,
+        this.datas});
+
+  DataBean.fromJson(Map<String, dynamic> json) {
+    this.over = json['over'];
+    this.curPage = json['curPage'];
+    this.offset = json['offset'];
+    this.pageCount = json['pageCount'];
+    this.size = json['size'];
+    this.total = json['total'];
+    this.datas = (json['datas'] as List) != null
+        ? (json['datas'] as List).map((i) => WxDetailBean.fromJson(i)).toList()
+        : null;
+  }
+}
+
 class WxDetailBean {
 //  apkLink: "",
 //  author: "鸿洋",

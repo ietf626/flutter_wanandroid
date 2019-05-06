@@ -15,35 +15,40 @@ import 'package:sprintf/sprintf.dart';
 
 import 'wx_search_page.dart';
 
-final Client client = Client();
+class WxDetailModel {
+  final Client client = Client();
+  String id;
+  WxDetailModel({this.id});
+  Future<DataBean> fetchData({int page = 1, String keyWords = ""}) async {
+    var url;
+    if (keyWords==null||keyWords.isEmpty) {
+      url = sprintf(Api.wx_detail_list, [id, page]);
+    } else {
+      url = sprintf(Api.wx_search, [id, page, keyWords]);
+    }
+    print("url:" + url);
+    final response = await client.get(url);
+    return parseData(response.body);
+//  return compute(parseData, response.body);
+  }
 
-Future<List<WxDetailBean>> fetchData({int page = 1}) async {
-  var url = sprintf(Api.wx_detail_list, [bean.id, page]);
-  print("url:" + url);
-  final response = await client.get(url);
-  return compute(parseData, response.body);
+  DataBean parseData(String str) {
+    final parsed = json.decode(str)['data'];
+    return DataBean.fromJson(parsed);
+  }
 }
-
-List<WxDetailBean> parseData(String str) {
-  final parsed = json.decode(str)['data'];
-  currPage = parsed['curPage'];
-  final datas = parsed['datas'].cast<Map<String, dynamic>>();
-  return datas
-      .map<WxDetailBean>((json) => WxDetailBean.fromJson(json))
-      .toList();
-}
-
-WxBean bean;
-int currPage = 1;
 
 class WxDetailPage extends StatelessWidget {
+  WxBean bean;
+  WxDetailModel model;
   WxDetailPage(WxBean data) {
     bean = data;
+    model = WxDetailModel(id: bean.id.toString());
   }
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: fetchData(),
+        future: model.fetchData(),
         builder: (context, snapshot) {
           Widget widget;
           switch (snapshot.connectionState) {
@@ -68,8 +73,12 @@ class WxDetailPage extends StatelessWidget {
                 IconButton(
                     icon: Icon(Icons.search),
                     onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (ctx) => WxSearchPage()));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (ctx) => WxSearchPage(
+                                    id: bean.id.toString(),
+                                  )));
                     })
               ],
             ),
@@ -80,25 +89,29 @@ class WxDetailPage extends StatelessWidget {
 }
 
 class WxDetailList extends StatefulWidget {
-  WxDetailList({this.data});
-  List<WxDetailBean> data;
+  WxDetailList({this.data, this.model, this.keyWords});
+  DataBean data;
+  WxDetailModel model;
+  String keyWords;
   @override
   State<StatefulWidget> createState() {
-    return WxDetailListState(data: data);
+    return WxDetailListState(bean: data, model: model);
   }
 }
 
 class WxDetailListState extends State<WxDetailList> {
-  WxDetailListState({this.data});
+  WxDetailListState({this.bean, this.model, this.keyWords});
+  DataBean bean;
   List<WxDetailBean> data;
-
+  WxDetailModel model;
+  int currPage = 1;
   ScrollController _controller = ScrollController();
-  int _currPage = 1;
-  bool _isLoading = false;
-
+  bool isLoading = false;
+  String keyWords;
   @override
   void initState() {
     super.initState();
+    data = bean.datas;
     _controller.addListener(() {
       if (_controller.position.pixels == _controller.position.maxScrollExtent) {
         _getMore();
@@ -174,7 +187,9 @@ class WxDetailListState extends State<WxDetailList> {
 
   _onPressd() {}
   Future<void> _onRefresh() {
-    return fetchData().then((list) {
+    return model.fetchData(keyWords: keyWords).then((it) {
+      final list = it.datas;
+      currPage = it.curPage;
       setState(() {
         data = list;
       });
@@ -182,17 +197,23 @@ class WxDetailListState extends State<WxDetailList> {
   }
 
   _getMore() {
-    if (_isLoading) return;
-    _isLoading = true;
-    _currPage++;
-    fetchData(page: _currPage).then((list) {
+    if (isLoading) return;
+    isLoading = true;
+    currPage++;
+    model.fetchData(page: currPage, keyWords: keyWords).then((it) {
+      final list = it.datas;
       setState(() {
-        data.addAll(list);
-        _isLoading = false;
+        if (list.isEmpty) {
+          currPage--;
+          ToastUtil.show(Strings.get(Strings.fetch_data_end));
+        } else {
+          data.addAll(list);
+        }
+        isLoading = false;
       });
     }).catchError(() {
       ToastUtil.show(Strings.get(Strings.fetch_data_error));
-      _isLoading = false;
+      isLoading = false;
     });
   }
 
