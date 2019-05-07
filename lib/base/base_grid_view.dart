@@ -3,22 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_wanandroid/res/strings.dart';
 import 'package:flutter_wanandroid/utils/toast_util.dart';
 
-abstract class BaseList extends StatefulWidget {
+abstract class BaseGridList extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
     return initState();
   }
 
-  BaseListViewState initState();
+  BaseGridListViewState initState();
 }
 
-abstract class BaseListViewState<T extends StatefulWidget, R extends Object>
+abstract class BaseGridListViewState<T extends StatefulWidget, R extends Object>
     extends State<T> {
   List<R> data = List();
   int currPage = 1;
   ScrollController _controller = ScrollController();
   bool isLoading = false;
   bool enableLoadMore = false;
+  int crossAxisCount = 3;
   @override
   void initState() {
     super.initState();
@@ -33,9 +34,11 @@ abstract class BaseListViewState<T extends StatefulWidget, R extends Object>
   Widget build(BuildContext context) {
     return RefreshIndicator(
         onRefresh: onRefresh,
-        child: ListView.builder(
+        child: GridView.builder(
             physics: const AlwaysScrollableScrollPhysics(),
             itemCount: _getItemCount(),
+            gridDelegate:
+            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
             controller: _controller,
             itemBuilder: (context, index) {
               if (index >= data.length) {
@@ -73,10 +76,8 @@ abstract class BaseListViewState<T extends StatefulWidget, R extends Object>
   }
 
   setLoadMoreError() {
-    () {
-      ToastUtil.show(Strings.get(Strings.fetch_data_error));
-      isLoading = false;
-    };
+    ToastUtil.show(Strings.get(Strings.fetch_data_error));
+    isLoading = false;
   }
 
   _onLoadMore() {

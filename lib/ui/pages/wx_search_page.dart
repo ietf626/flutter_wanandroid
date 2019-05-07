@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_wanandroid/res/strings.dart';
-
+import 'package:flutter_wanandroid/ui/widgets/wx_article_list.dart';
+import 'package:flutter_wanandroid/model/wx_article_model.dart';
 import 'wx_detail_page.dart';
 
 class WxSearchPage extends StatefulWidget {
@@ -16,14 +17,14 @@ class WxSearchPage extends StatefulWidget {
 class WxSearchPageState extends State<WxSearchPage> {
   WxSearchPageState({this.id});
   String id;
-  WxModel model;
+  WxArticleodel model;
   TextEditingController controller = TextEditingController();
   bool isEmpty = true;
   String key;
   @override
   void initState() {
     super.initState();
-    model = WxModel(id: id);
+    model = WxArticleodel(id: id);
   }
 
   @override
@@ -79,7 +80,7 @@ class WxSearchPageState extends State<WxSearchPage> {
                 if (snapshot.hasError) {
                   widget = Center(child: Text('Error:${snapshot.error}'));
                 } else {
-                  widget = WxList(
+                  widget = WxArticleList(
                     data: snapshot.data,
                     model: model,
                     keyWords: key,
