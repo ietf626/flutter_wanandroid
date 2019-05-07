@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'dart:core';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_wanandroid/base/base_list_view.dart';
 import 'package:flutter_wanandroid/bean/wx_detail_bean.dart';
+import 'package:flutter_wanandroid/model/wx_article_model.dart';
+import 'package:flutter_wanandroid/res/strings.dart';
 import 'package:flutter_wanandroid/utils/utils.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_wanandroid/model/wx_article_model.dart';
+
 class WxArticleList extends BaseList {
   WxArticleList({this.model, this.data, this.keyWords});
   DataBean data;
@@ -51,11 +54,11 @@ class WxArticleListState extends BaseListViewState<BaseList, WxDetailBean> {
                                   style: TextStyle(fontSize: 18),
                                 ),
                                 Text(
-                                  "作者：${item.author}",
+                                  "${Strings.get(Strings.author) + item.author}",
                                   style: TextStyle(fontSize: 12),
                                 ),
                                 Text(
-                                  "发布时间：${DateFormat("y-M-d h:mm").format(DateTime.fromMillisecondsSinceEpoch(item.publishTime))}",
+                                  "${Strings.get(Strings.publish_time) + DateFormat("y-M-d h:mm").format(DateTime.fromMillisecondsSinceEpoch(item.publishTime))}",
                                   style: TextStyle(fontSize: 12),
                                 )
                               ],
