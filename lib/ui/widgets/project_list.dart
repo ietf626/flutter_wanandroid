@@ -43,7 +43,7 @@ class ProjectListState extends BaseListViewState<ProjectList, DataListBean> {
               children: <Widget>[
                 ClipRRect(
                   child: FadeInImage.assetNetwork(
-                    placeholder: Api.image_place_holder,
+                    placeholder: Utils.getImgPath("icon_image_place_holder"),
                     image: item.envelopePic,
                     fit: BoxFit.cover,
                     width: 80,

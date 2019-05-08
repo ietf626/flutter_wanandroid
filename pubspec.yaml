@@ -47,6 +47,8 @@ flutter:
   assets:
    - assets/images/icon_heart_hi.png
    - assets/images/icon_heart_no.png
+   - assets/images/icon_loading.png
+   - assets/images/icon_image_place_holder.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
