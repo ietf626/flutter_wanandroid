@@ -27,7 +27,8 @@ dependencies:
   cupertino_icons: ^0.1.2
   intl: 0.15.8
   fluttertoast: ^3.0.4
-
+  # https://github.com/flutterchina/flukit.
+  flukit: ^1.0.0
 
 dev_dependencies:
   flutter_test:
